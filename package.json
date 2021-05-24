@@ -1,0 +1,22 @@
+{
+  "name": "weather",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ERIC0405/Private-weather.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ERIC0405/Private-weather/issues"
+  },
+  "homepage": "https://github.com/ERIC0405/Private-weather#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2"
+  }
+}
