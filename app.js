@@ -1,8 +1,12 @@
 const apiKey = `b8aa8c39c4012f71e59cf320be595b6b`;
 
 class Forecast {
-  constructor(daysLater) {
+  constructor(daysLater,list) {
     this.daysLater = daysLater;
+    this.icon = this._getIcon(list);
+    this.weather = this._getWeather(list);
+    this.highestTemp = this._getHighestTemp(list);
+    this.lowestTemp = this._getLowestTemp(list);
   }
 
   _getNoonWeather(list) {
@@ -10,16 +14,15 @@ class Forecast {
       const date = new Date(ele[`dt_txt`]); 
       return date.getHours() === 12;
     })
-    console.log(noonWeatherList[this.daysLater]);
-    return noonWeatherList[this.daysLater];
+    return noonWeatherList[this.daysLater - 1];
   }
 
-  getIcon(list) {
+  _getIcon(list) {
     const noonWeather = this._getNoonWeather(list);
     return `http://openweathermap.org/img/wn/${noonWeather.weather[0].icon}@2x.png`;
   }
 
-  getWeather(list) {
+  _getWeather(list) {
     const noonWeather = this._getNoonWeather(list);
     return noonWeather.weather[0].description;
   }
@@ -35,29 +38,28 @@ class Forecast {
       return date.getDay() === today + this.daysLater - daysAWeek;
     }
   })
-  console.log(OneDayWeatherArray);
   return OneDayWeatherArray;
 }
 
-  getHighestTemp(list) {
+  _getHighestTemp(list) {
   const oneDayWeatherArray = this._getOneDayWeatherArray(list);
 
   oneDayWeatherArray.sort((a,b) => {
     return b.main[`temp_max`] - a.main[`temp_max`];
   })
 
-  return oneDayWeatherArray[0].main[`temp_max`];
+  return Math.round(oneDayWeatherArray[0].main[`temp_max`]);
 }
 
-  getLowestTemp(list) {
+_getLowestTemp(list) {
   const oneDayWeatherArray = this._getOneDayWeatherArray(list);
 
   oneDayWeatherArray.sort((a,b) => {
     return a.main[`temp_min`] - b.main[`temp_min`];
   })
 
-  return oneDayWeatherArray[0].main[`temp_min`];
-}
+  return Math.round(oneDayWeatherArray[0].main[`temp_min`]);
+ }
 }
 
 navigator.geolocation.getCurrentPosition(success, error);
@@ -68,11 +70,7 @@ function success(position) {
   getCurrentWeatherJson(latitude, longitude)
   .then((json) => renderCurrentWeather(json));
   getForecastJson(latitude, longitude)
-  .then((json) => {
-    let a = new Forecast(2);
-      console.log(a.getHighestTemp(json.list));
-      console.log(a.getLowestTemp(json.list));
-  })
+  .then((json) => renderForcast(json))
 }
 
 function error() {
@@ -111,4 +109,26 @@ function getCurrentWeatherJson(latitude, longitude) {
           throw new Error(`There is a problem in  forecast`);
         }
       });
+  }
+
+  function renderForcast(json) {
+    const forecastContainer = document.querySelector(`.forecast`);
+    const forecastDays = 5;
+    let html = ``;
+  
+    for (let daysLater = 1; daysLater <= forecastDays; daysLater++){
+      const forcast = new Forecast(daysLater, json.list);
+      html += `
+      <div class="day">
+            <h3>Tuesday</h3>
+            <img src="${forcast.icon}" />
+            <div class="description">${forcast.weather}</div>
+            <div class="temp">
+              <span class="high">${forcast.highestTemp}℃</span>/<span class="low">${forcast.lowestTemp}℃</span>
+            </div>
+          </div>
+      `;
+    }
+  
+    forecastContainer.innerHTML = html;
   }
