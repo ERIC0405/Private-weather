@@ -1,12 +1,5 @@
 const apiKey = `b8aa8c39c4012f71e59cf320be595b6b`;
 
-//Current Weather Data  
-//api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={your api key}
-// api.openweathermap.org/data/2.5/weather?lat=35&lon=139
-
-// icon  https://openweathermap.org/weather-conditions
-// http://openweathermap.org/img/wn/10d@2x.png 
-
 navigator.geolocation.getCurrentPosition(success, error);
 
 function success(position) {
@@ -14,6 +7,8 @@ function success(position) {
   longitude = position.coords.longitude;
   getCurrentWeatherJson(latitude, longitude)
   .then((json) => renderCurrentWeather(json));
+  getForecastJson(latitude, longitude)
+    .then((json) => console.log(json))
 }
 
 function error() {
@@ -30,7 +25,7 @@ function getCurrentWeatherJson(latitude, longitude) {
       }
     });
   }
-  
+
   function renderCurrentWeather(json) {
     const currentConditionsEle = document.querySelector(`.current-conditions`);
   
@@ -41,4 +36,15 @@ function getCurrentWeatherJson(latitude, longitude) {
        <div class="temp">${Math.round(json.main.temp)}℃</div>
        <div class="condition">${json.weather[0].description}</div>
       `;
+  }
+
+  function getForecastJson(latitude, longitude) {
+    return fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error(`There is a problem in  forecast`);
+        }
+      });
   }
