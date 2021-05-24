@@ -23,6 +23,41 @@ class Forecast {
     const noonWeather = this._getNoonWeather(list);
     return noonWeather.weather[0].description;
   }
+
+  _getOneDayWeatherArray(list){
+  const today = new Date().getDay();
+  const daysAWeek = 7;
+  const OneDayWeatherArray = list.filter((ele) => {
+    const date = new Date(ele[`dt_txt`]); 
+    if (today + this.daysLater < daysAWeek) {
+      return date.getDay() === today + this.daysLater;
+    } else {
+      return date.getDay() === today + this.daysLater - daysAWeek;
+    }
+  })
+  console.log(OneDayWeatherArray);
+  return OneDayWeatherArray;
+}
+
+  getHighestTemp(list) {
+  const oneDayWeatherArray = this._getOneDayWeatherArray(list);
+
+  oneDayWeatherArray.sort((a,b) => {
+    return b.main[`temp_max`] - a.main[`temp_max`];
+  })
+
+  return oneDayWeatherArray[0].main[`temp_max`];
+}
+
+  getLowestTemp(list) {
+  const oneDayWeatherArray = this._getOneDayWeatherArray(list);
+
+  oneDayWeatherArray.sort((a,b) => {
+    return a.main[`temp_min`] - b.main[`temp_min`];
+  })
+
+  return oneDayWeatherArray[0].main[`temp_min`];
+}
 }
 
 navigator.geolocation.getCurrentPosition(success, error);
@@ -34,9 +69,9 @@ function success(position) {
   .then((json) => renderCurrentWeather(json));
   getForecastJson(latitude, longitude)
   .then((json) => {
-    console.log(json.list);
-    let a = new Forecast(1);
-    console.log(a.getIcon(json.list));
+    let a = new Forecast(2);
+      console.log(a.getHighestTemp(json.list));
+      console.log(a.getLowestTemp(json.list));
   })
 }
 
