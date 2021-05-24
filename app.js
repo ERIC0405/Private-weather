@@ -11,13 +11,19 @@ class Forecast {
   }
 
   _getNoonWeather(list) {
-    const noonWeatherList = list.filter((ele) => {
+    const oneDayWeatherArray = this._getOneDayWeatherArray(list);
+
+    const noonWeather = oneDayWeatherArray.find((ele) => {
 
       const date = new Date(ele[`dt_txt`]);
       return date.getHours() === 12;
     })
 
-    return noonWeatherList[this.daysLater - 1];
+    if (noonWeather === undefined) {
+      return oneDayWeatherArray[0];
+    } else {
+      return noonWeather;
+    }
   }
 
   _getIcon(list) {
