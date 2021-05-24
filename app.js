@@ -7,13 +7,16 @@ class Forecast {
     this.weather = this._getWeather(list);
     this.highestTemp = this._getHighestTemp(list);
     this.lowestTemp = this._getLowestTemp(list);
+    this.day = this._getDay();
   }
 
   _getNoonWeather(list) {
     const noonWeatherList = list.filter((ele) => {
-      const date = new Date(ele[`dt_txt`]); 
+
+      const date = new Date(ele[`dt_txt`]);
       return date.getHours() === 12;
     })
+
     return noonWeatherList[this.daysLater - 1];
   }
 
@@ -27,24 +30,26 @@ class Forecast {
     return noonWeather.weather[0].description;
   }
 
-  _getOneDayWeatherArray(list){
+  _getOneDayWeatherArray(list) {
   const today = new Date().getDay();
   const daysAWeek = 7;
   const OneDayWeatherArray = list.filter((ele) => {
-    const date = new Date(ele[`dt_txt`]); 
+
+    const date = new Date(ele[`dt_txt`]);
     if (today + this.daysLater < daysAWeek) {
       return date.getDay() === today + this.daysLater;
     } else {
       return date.getDay() === today + this.daysLater - daysAWeek;
     }
   })
+
   return OneDayWeatherArray;
 }
 
   _getHighestTemp(list) {
   const oneDayWeatherArray = this._getOneDayWeatherArray(list);
 
-  oneDayWeatherArray.sort((a,b) => {
+  oneDayWeatherArray.sort((a, b) => {
     return b.main[`temp_max`] - a.main[`temp_max`];
   })
 
@@ -54,12 +59,24 @@ class Forecast {
 _getLowestTemp(list) {
   const oneDayWeatherArray = this._getOneDayWeatherArray(list);
 
-  oneDayWeatherArray.sort((a,b) => {
+  oneDayWeatherArray.sort((a, b) => {
     return a.main[`temp_min`] - b.main[`temp_min`];
   })
 
   return Math.round(oneDayWeatherArray[0].main[`temp_min`]);
  }
+
+ _getDay() {
+  const today = new Date().getDay();
+  const days = [`Sunday`, `Monday`, `Tuesday`, `Wednesday`, `Thursday`, `Friday`, `Saturday`];
+  const daysAWeek = 7;
+
+  if (today + this.daysLater < daysAWeek) {
+    return days[today + this.daysLater];
+  } else {
+    return days[today + this.daysLater - daysAWeek];
+  }
+}
 }
 
 navigator.geolocation.getCurrentPosition(success, error);
@@ -116,11 +133,11 @@ function getCurrentWeatherJson(latitude, longitude) {
     const forecastDays = 5;
     let html = ``;
   
-    for (let daysLater = 1; daysLater <= forecastDays; daysLater++){
+    for (let daysLater = 1; daysLater <= forecastDays; daysLater++ ){
       const forcast = new Forecast(daysLater, json.list);
       html += `
       <div class="day">
-            <h3>Tuesday</h3>
+            <h3>${forcast.day}</h3>
             <img src="${forcast.icon}" />
             <div class="description">${forcast.weather}</div>
             <div class="temp">
